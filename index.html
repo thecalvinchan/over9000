@@ -1,6 +1,6 @@
 <!DOCTYPE html>   
 <!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" ng-app"tenThousand" > <!--<![endif]-->
 
 <head>
     <meta charset="utf-8">
@@ -8,6 +8,7 @@
     <title>10,000</title>
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/vendor/angular.min.js"></script>
     <script src="js/vendor/custom.modernizr.js"></script>
 </head>
 <body>
@@ -18,10 +19,6 @@
         </div>
     </header>
     <br>
-    <div class="row">
-        <div class="small-10 large-4 small-centered columns">
-            <a href="#" class="button expand">Login with GitHub</a>
-        </div>
-    </div>
+    <div ng-view></div>
 </body>
 </html>
