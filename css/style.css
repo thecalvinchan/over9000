@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'digi';
+    src: url('http://cssdeck.com/uploads/resources/fonts/digii/DS-DIGII.TTF');
+}
+
+p {
+    font-family: 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+header {
+}
+
+header h1.time {
+    text-align: center;
+    font-family: 'digi';
+    font-weight: normal;
+}
+
+header div {
+}
