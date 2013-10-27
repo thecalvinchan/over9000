@@ -43,9 +43,35 @@ app.get('/api',function(req,res) {
             var userLogin = userInfo.login;
             getUserRepos(accessToken,function(repoString) {
                 var repos = JSON.parse(repoString);
-                getRepoCommits(accessToken,repos,userLogin, function(commitString) {
-                    var commits = JSON.parse(commitString);
-                    console.log(commits);
+                getRepoCommits(accessToken,repos,userLogin, function(repoCommits) {
+                    console.log(repoCommits.length);
+                    var minWeek, maxWeek; 
+                    var additions = 0, deletions = 0, commits = 0;
+                    for (var i=0;i<repoCommits.length;i++) {
+                        for (var j=0;j<repoCommits[i].length;j++) {
+                            if (!minWeek || minWeek > repoCommits[i][j].w) {
+                                minWeek = repoCommits[i][j].w; 
+                            }
+                            if (!maxWeek || maxWeek < repoCommits[i][j].w) {
+                                maxWeek = repoCommits[i][j].w;
+                            } 
+                            additions += repoCommits[i][j].a;
+                            deletions += repoCommits[i][j].d;
+                            commits += repoCommits[i][j].c;
+                        }
+                    }
+                    var returnData = {
+                        totalAdditions : additions,
+                        totalDeletions : deletions,
+                        totalCommits : commits,
+                        earliestWeek : minWeek,
+                        latestWeek : maxWeek
+                    };
+                    res.write(JSON.stringify(returnData)); 
+                    res.send();
+                    //getCommitStats(accessToken,commits, function(stats) {
+                    //    console.log(stats);
+                    //});
                 });
                 for (var repo in repos) {
                     console.log(repos[repo].full_name);
@@ -173,15 +199,15 @@ function getUserRepos(token,callback) {
 }
 
 function getRepoCommits(token,repos,user,callback) {
-    var returnData = [];
+    var weeklyStats = [];
+    var totalParsed = 0;
 
-    for (var i=0; i<repos.length; i++) {
+    repos.forEach(function(repo, i) {
         var returnChunk = '';
-        var full_name = repos[i].full_name;
-        console.log(full_name);
+        var full_name = repo.full_name;
         var options = {
             host: 'api.github.com',
-            path: '/repos/'+full_name+'/commits?author='+user,
+            path: '/repos/'+full_name+'/stats/contributors',
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -196,8 +222,65 @@ function getRepoCommits(token,repos,user,callback) {
                 returnChunk += chunk;
             });
             res.on('end', function(chunk) {
-                console.log(returnChunk);
-                returnData.push(returnChunk);
+                //console.log(returnChunk);
+                var stats = JSON.parse(returnChunk);
+                //console.log("NUMBER"+ stats.length);
+                //console.log("STATUSCODE "+res.statusCode);
+                totalParsed++;
+                for (var j=0;j<stats.length;j++) {
+                    if (stats[j].author.login == user) {
+                        weeklyStats.push(stats[j].weeks);
+                    }
+                }
+                if (totalParsed == repos.length) {
+                    //console.log(weeklyStats);
+                    callback(weeklyStats);
+                }
+            })
+        });
+
+        request.on('error',function(err) {
+            callback(err);
+            console.log(err);
+        });
+        request.end();
+    });
+}
+
+function getCommitStats(token,commits,callback) {
+    var returnData = {
+        additions: 0,
+        deletions: 0,
+        total: 0
+    };
+
+    for (var i=0; i<commits.length; i++) {
+        var commit = JSON.parse(commits[i]);
+        var returnChunk = '';
+        var slicedUrl = commit.url.substring(22);
+        console.log(slicedUrl);
+        var options = {
+            host: 'api.github.com',
+            path: slicedUrl,
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': 'token '+token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        };
+        
+        var request = https.request(options, function(res) {
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                returnChunk += chunk;
+            });
+            res.on('end', function(chunk) {
+                var stats = JSON.parse(chunk).stats;
+                returnData.additions += stats.additions;
+                returnData.deletions += stats.deletions;
+                returnData.total += stats.total;
+                console.log(returnData);
                 if (i == repos.length-1) {
                     callback(returnData);
                 }
