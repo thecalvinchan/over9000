@@ -1,6 +1,6 @@
 var express = require('express');
 var querystring = require('querystring');
-var http = require('http');
+var https = require('https');
 var app = express();
 
 //app.set('view engine', 'html');
@@ -43,17 +43,18 @@ app.get('/api',function(req,res) {
 });
 
 function retrieveAccessToken(code,callback) {
-    var accessToken;
+    var accessToken = '';
 
     var data = querystring.stringify({
         'client_id':'f637de5188550a885cbb',
-        'client_secret':'aeaa53172885b798c8687a4d8d3eb207974086fa',
+        'client_secret':'aeaa53172885b798c8687a4d8d3eb207974086fa', //Not actually my secret key, nice try.
         'code':code
     });
+    console.log(data);
     
     var options = {
-        host: 'https://github.com/login/oauth/access_token',
-        path: '/',
+        host: 'github.com',
+        path: '/login/oauth/access_token',
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -61,7 +62,7 @@ function retrieveAccessToken(code,callback) {
         }
     };
     
-    var request = http.request(options, function(res) {
+    var request = https.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(chunk) {
             accessToken += chunk;
@@ -72,6 +73,9 @@ function retrieveAccessToken(code,callback) {
         })
     });
 
+    request.on('error',function(err) {
+        console.log(err);
+    });
     request.write(data);
     request.end();
 };
