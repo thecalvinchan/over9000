@@ -35,10 +35,18 @@ app.get('/authenticated', function(req,res) {
 
 app.get('/api',function(req,res) {
     var code = req.query.code;
-    retrieveAccessToken(code,function(data){
-        console.log(data);
-        res.write(data);
-        res.send();
+    retrieveAccessToken(code,function(access){
+        var accessJson = JSON.parse(access); 
+        var accessToken = accessJson.access_token;
+        getUserRepos(accessToken,function(repos) {
+            var reposJson = JSON.parse(repos);
+            console.log("SIZE " + reposJson.length);
+            for (var repo in reposJson) {
+                console.log(reposJson[repo].full_name);
+            }
+            res.write(repos);
+            res.send();
+        });
     });
 });
 
@@ -57,6 +65,7 @@ function retrieveAccessToken(code,callback) {
         path: '/login/oauth/access_token',
         method: 'POST',
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': data.length
         }
@@ -79,5 +88,47 @@ function retrieveAccessToken(code,callback) {
     request.write(data);
     request.end();
 };
+
+function getUserRepos(token,callback){
+    var returnData = '';
+
+    // I don't know why setting query param
+    // for access token doesn't work
+
+    //var data = querystring.stringify({
+    //    'access_token':token
+    //});
+    //console.log(data);
+    
+    var options = {
+        host: 'api.github.com',
+        path: '/user/repos',
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'token '+token,
+            'Content-Type': 'application/x-www-form-urlencoded'
+            //'Content-Length': data.length
+        }
+    };
+    
+    var request = https.request(options, function(res) {
+        res.setEncoding('utf8');
+        res.on('data', function(chunk) {
+            returnData += chunk;
+        });
+        res.on('end', function(chunk) {
+            //console.log(returnData);
+            callback(returnData);
+        })
+    });
+
+    request.on('error',function(err) {
+        callback(err);
+        console.log(err);
+    });
+    //request.write(data);
+    request.end();
+}
         
 app.listen(8080);

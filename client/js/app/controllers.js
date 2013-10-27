@@ -15,4 +15,5 @@ tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$lo
     }
     console.log($scope.code);
     $scope.data = data.getData($scope.code);
+    console.log($scope.data);
 }]);
