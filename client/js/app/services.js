@@ -6,9 +6,6 @@ tenThousandCtrl.factory('dataFactory', ['$http', function($http) {
             console.log("HELLO WORLD");
             var data = $http.get('http://localhost:8033/api?code='+code).success(function(json){console.log(json);});
             return data;
-        },
-        getOtherData: function() {
-            return 'Other Data';
         }
     }    
 }]);
