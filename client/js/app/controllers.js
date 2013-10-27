@@ -18,4 +18,21 @@ tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$lo
     //$scope.data = data.getData($scope.code);
     $scope.unit = 100;
     console.log(typeof $scope.data);
+    $scope.calcNum = function(num,prec) {
+        return num.toFixed(prec);
+    };
+    $scope.roundFloat = function(num,prec) {
+        if (num < 0) {
+            return 0;
+        } else {
+            return num.toFixed(prec);
+        }
+    };
+    $scope.graphHours = function(num) {
+        if (num > 100) {
+            return 100;
+        } else {
+            return Math.floor(num);
+        }
+    }
 }]);

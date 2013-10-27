@@ -22,3 +22,7 @@ header h1.time {
 
 header div {
 }
+
+#hoursCompleted {
+    font-size: 300%;
+}
