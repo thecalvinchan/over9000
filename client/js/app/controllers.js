@@ -28,6 +28,24 @@ tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$lo
             return num.toFixed(prec);
         }
     };
+    $scope.displayTime= function(num) {
+        if (num < 0) {
+            return 0;
+        } else {
+            var whole = Math.floor(num);
+            var decimal = (num - whole).toFixed(4);
+            var temp = Math.floor(decimal*100);
+            var minutes = (temp/100*60).toFixed(0);
+            var seconds = ((decimal - temp/100)*60).toFixed(0);
+            if (minutes<10) {
+                minutes = "0"+minutes;
+            }
+            if (seconds<10) {
+                seconds = "0"+seconds;
+            }
+            return whole+':'+minutes+':'+seconds;
+        }
+    };
     $scope.graphHours = function(num) {
         if (num > 100) {
             return 100;

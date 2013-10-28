@@ -18,11 +18,63 @@ header h1.time {
     text-align: center;
     font-size: 400%;
     font-weight: normal;
+    margin-bottom: -20px;
 }
 
-header div {
+header .tagline {
+    color: #000;
 }
 
 #hoursCompleted {
-    font-size: 300%;
+}
+
+#hoursCompleted .time {
+    font-size: 450%;
+    font-weight: normal;
+    margin-bottom: 0px;
+}
+
+.progress {
+    height: 3em;
+    margin-bottom: 40px;
+}
+
+.progress.success .meter {
+    line-height: 3em;
+    background-color: #5cb85c;
+}
+
+.total-commits {
+    font-size: 400%;
+    margin-bottom: -10px;
+}
+
+.stats {
+    margin-bottom: -20px;
+}
+
+.bar-graph-headers {
+    border-bottom: 1px solid #6f6f6f;
+}
+
+.additions .bar-graph{
+    background-color: #5cb85c;
+    height: 100px;
+}
+
+.additions p {
+   color: #5cb85c;
+}
+
+.deletions .bar-graph{
+    background-color: #d9534f;
+    height: 100px;
+}
+
+.deletions p {
+   color: #d9534f;
+}
+
+.commits .bar-graph {
+    background-color: #6f6f6f;
 }

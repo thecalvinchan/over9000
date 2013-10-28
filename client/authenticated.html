@@ -3,43 +3,65 @@
             <img src="img/loading.gif" alt="loading">
         </div>
     </div>
-    <div class="row" id="ng-view" style="display: none">
-        <div class="small-12 large-3 large-offset-1 push-8 columns">
-            <div class="row text-center">
-                <br>
-                <div class="small-4 large-12 columns">
-                    <a class="button expand">Total</a>
+    <div id="ng-view" style="display: none">
+        <div class="row">
+            <div class="small-12 large-8 small-centered large-uncentered columns" id="hoursCompleted">
+                <h2 class="time text-center">{{displayTime((data.data.totalAdditions + data.data.totalDeletions)/unit)}}</h2>
+                <div class="row">
+                    <div class="progress large-12 success"><span class="meter" style="width: {{graphHours((data.data.totalAdditions + data.data.totalDeletions)/unit/100)}}%"></span></div>
                 </div>
-                <div class="small-4 large-12 columns">
-                    <a class="button expand">Breakdown</a>
+                <div class="row">
+                    <div class="small-12 large-12 small-centered columns text-center">
+                        <p><strong>You've spent approximately {{roundFloat((data.data.totalAdditions + data.data.totalDeletions)/unit,2)}} hours programming. You have {{roundFloat(10000 - (data.data.totalAdditions+data.data.totalDeletions)/unit,2)}} hours left.</strong></p>
+                    </div>
                 </div>
-                <div class="small-4 large-12 columns">
-                    <a class="button expand">Averages</a>
-                </div>
-            </div>    
-        </div>
-        <div class="small-12 large-8 pull-4 small-centered large-uncentered columns" id="hoursCompleted">
-            <h2 class="time text-center">{{roundFloat((data.data.totalAdditions + data.data.totalDeletions)/unit,2)}}</h2>
-            <div class="row">
-                <div class="progress large-12 success"><span class="meter" style="width: {{graphHours((data.data.totalAdditions + data.data.totalDeletions)/unit/100)}}%"></span></div>
-            </div>
-        </div>
-        <div class="small-12 large-12 small-centered columns text-center">
-            <p><strong>You've spent approximately {{roundFloat((data.data.totalAdditions + data.data.totalDeletions)/unit,2)}} hours programming. You have {{roundFloat(10000 - (data.data.totalAdditions+data.data.totalDeletions)/unit,2)}} hours left.</strong></p>
-        </div>
-        <div class="small-10 large-8 small-centered columns">
-            <div class="row collapse">
-                <div class="small-12 large-6 columns">
-                    <p class="subheader">Your total number of hours is calculated with respect to a ratio of {{unit}} changes per hour. This means that for every {{unit}} additions or deletions, you spend an hour coding. You can change this ratio below.</p>
-                </div>
-                <div class="small-4 large-2 large-offset-1 columns">
-                    <br><br>
-                    <input type="text" placeholder="ex. 100" ng-model="unit">
-                </div>
-                <div class="small-8 large-3 columns">
-                    <br><br>
-                    <span class="postfix">Changes = 1 Hour</span>
+                <div class="row">
+                    <div class="small-10 large-12 small-centered columns">
+                        <div class="row collapse">
+                            <div class="small-12 large-6 columns">
+                                <p class="subheader">Your total number of hours is calculated with respect to a ratio of {{unit}} changes per hour. This means that for every {{unit}} additions or deletions, you spend an hour coding. You can change this ratio below.</p>
+                            </div>
+                            <div class="small-4 large-2 large-offset-1 columns">
+                                <br><br>
+                                <input type="text" placeholder="ex. 100" ng-model="unit">
+                            </div>
+                            <div class="small-8 large-3 columns">
+                                <br><br>
+                                <span class="postfix">Changes = 1 Hour</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="small-12 large-3 large-offset-1 columns">
+                <div class="row">
+                    <div class="small-12 columns">
+                        <h2 class="text-center total-commits">{{data.data.totalCommits}}</h2>
+                        <h3 class="text-center">Total Commits</h3>
+                    </div>
+                </div>
+                <div class="row bar-graph-headers">
+                    <div class="small-12 stats">
+                        <h3 class="subheader text-center">Stats</h3>
+                    </div>
+                    <div class="small-6 columns additions text-center">
+                        <p class="subheader">Additions</p>
+                    </div>
+                    <div class="small-6 columns deletions text-center">
+                        <p class="subheader">Deletions</p>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="small-6 columns additions text-center">
+                        <div class="bar-graph" style="height: {{data.data.totalAdditions/(data.data.totalAdditions+data.data.totalDeletions)*250}}px"></div>
+                        <p class="text-center">{{data.data.totalAdditions}}</p>
+                    </div>
+                    <div class="small-6 columns deletions">
+                        <div class="bar-graph" style="height: {{data.data.totalDeletions/(data.data.totalAdditions+data.data.totalDeletions)*250}}px"></div>
+                        <p class="text-center">{{data.data.totalDeletions}}</p>
+                    </div>
+                </div>
+            </div>
         </div>
+        <br><br>
     </div>
