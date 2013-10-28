@@ -14,8 +14,8 @@ tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$lo
         $scope.code = $routeParams.code;
     }
     console.log($scope.code);
-    $scope.data = {data:{totalAdditions:159988,totalDeletions:38576,totalCommits:338,earliestWeek: 1302393600, latestWeek: 1382832000}};
-    //$scope.data = data.getData($scope.code);
+    //$scope.data = {data:{totalAdditions:159988,totalDeletions:38576,totalCommits:338,earliestWeek: 1302393600, latestWeek: 1382832000}};
+    $scope.data = data.getData($scope.code);
     $scope.unit = 100;
     console.log(typeof $scope.data);
     $scope.calcNum = function(num,prec) {

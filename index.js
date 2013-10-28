@@ -35,15 +35,77 @@ app.get('/authenticated', function(req,res) {
 
 app.get('/api',function(req,res) {
     var code = req.query.code;
-    retrieveAccessToken(code,function(access){
-        var accessJson = JSON.parse(access); 
-        var accessToken = accessJson.access_token;
-        getUserInfo(accessToken,function(userString) {
+    if (!req.session.accessToken) {
+        retrieveAccessToken(code,function(access){
+            console.log(access);
+            if (access == '{"error":"bad_verification_code"}') {
+                //error logging user in
+                res.write('error');
+                res.send();
+                return;
+            }
+            var accessJson = JSON.parse(access); 
+            req.session.accessToken = accessJson.access_token;
+            getUserInfo(req.session.accessToken,function(userString) {
+                var userInfo = JSON.parse(userString);
+                var userLogin = userInfo.login;
+                getUserRepos(req.session.accessToken,function(repoString) {
+                    var repos = JSON.parse(repoString);
+                    getRepoCommits(req.session.accessToken,repos,userLogin, function(repoCommits) {
+                        console.log(repoCommits.length);
+                        var minWeek, maxWeek; 
+                        var additions = 0, deletions = 0, commits = 0;
+                        for (var i=0;i<repoCommits.length;i++) {
+                            for (var j=0;j<repoCommits[i].length;j++) {
+                                if (!minWeek || minWeek > repoCommits[i][j].w) {
+                                    minWeek = repoCommits[i][j].w; 
+                                }
+                                if (!maxWeek || maxWeek < repoCommits[i][j].w) {
+                                    maxWeek = repoCommits[i][j].w;
+                                } 
+                                additions += repoCommits[i][j].a;
+                                deletions += repoCommits[i][j].d;
+                                commits += repoCommits[i][j].c;
+                            }
+                        }
+                        var returnData = {
+                            totalAdditions : additions,
+                            totalDeletions : deletions,
+                            totalCommits : commits,
+                            earliestWeek : minWeek,
+                            latestWeek : maxWeek,
+                            time : new Date().getTime()
+                        };
+                        req.session.cacheData = returnData;
+                        res.write(JSON.stringify(returnData)); 
+                        res.send();
+                        //getCommitStats(accessToken,commits, function(stats) {
+                        //    console.log(stats);
+                        //});
+                    });
+                    for (var repo in repos) {
+                        console.log(repos[repo].full_name);
+                    }
+                    //res.write(repoString);
+                    //res.send();
+                });
+            });
+        });
+    } else {
+        var time = new Date().getTime();
+        if (time - req.session.cacheData.time < 3600000) {
+            console.log("Sending Cached Data");
+            res.write(JSON.stringify(req.session.cacheData));
+            res.send();
+            return;
+        }
+        console.log(req.session.accessToken);
+        getUserInfo(req.session.accessToken,function(userString) {
             var userInfo = JSON.parse(userString);
             var userLogin = userInfo.login;
-            getUserRepos(accessToken,function(repoString) {
+            getUserRepos(req.session.accessToken,function(repoString) {
                 var repos = JSON.parse(repoString);
-                getRepoCommits(accessToken,repos,userLogin, function(repoCommits) {
+                getRepoCommits(req.session.accessToken,repos,userLogin, function(repoCommits) {
                     console.log(repoCommits.length);
                     var minWeek, maxWeek; 
                     var additions = 0, deletions = 0, commits = 0;
@@ -65,8 +127,10 @@ app.get('/api',function(req,res) {
                         totalDeletions : deletions,
                         totalCommits : commits,
                         earliestWeek : minWeek,
-                        latestWeek : maxWeek
+                        latestWeek : maxWeek,
+                        time : new Date().getTime()
                     };
+                    req.session.cacheData = returnData;
                     res.write(JSON.stringify(returnData)); 
                     res.send();
                     //getCommitStats(accessToken,commits, function(stats) {
@@ -80,7 +144,7 @@ app.get('/api',function(req,res) {
                 //res.send();
             });
         });
-    });
+    }
 });
 
 function retrieveAccessToken(code,callback) {
@@ -111,12 +175,16 @@ function retrieveAccessToken(code,callback) {
         });
         res.on('end', function(chunk) {
             console.log(accessToken);
+            console.log(res.statusCode);
             callback(accessToken);
         })
     });
 
     request.on('error',function(err) {
         console.log(err);
+        console.log("Access Code Invalid");
+        accessToken = -1;
+        callback(-1);
     });
     request.write(data);
     request.end();
