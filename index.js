@@ -51,7 +51,7 @@ app.get('/api',function(req,res) {
                 var userLogin = userInfo.login;
                 getUserRepos(req.session.accessToken,function(repoString) {
                     var repos = JSON.parse(repoString);
-                    getRepoCommits(req.session.accessToken,repos,userLogin, function(repoCommits) {
+                    getRepoCommits(req.session.accessToken,repos,userLogin, function(repoCommits,caching) {
                         console.log(repoCommits.length);
                         var minWeek, maxWeek; 
                         var additions = 0, deletions = 0, commits = 0;
@@ -74,30 +74,28 @@ app.get('/api',function(req,res) {
                             totalCommits : commits,
                             earliestWeek : minWeek,
                             latestWeek : maxWeek,
-                            time : new Date().getTime()
+                            time : new Date().getTime(),
+                            gitCache : caching,
                         };
-                        req.session.cacheData = returnData;
+                        if (!caching) {
+                            req.session.cacheData = returnData;
+                            console.log("GitHub results accurate");
+                        }
                         res.write(JSON.stringify(returnData)); 
                         res.send();
-                        //getCommitStats(accessToken,commits, function(stats) {
-                        //    console.log(stats);
-                        //});
                     });
-                    for (var repo in repos) {
-                        console.log(repos[repo].full_name);
-                    }
-                    //res.write(repoString);
-                    //res.send();
                 });
             });
         });
     } else {
         var time = new Date().getTime();
-        if (time - req.session.cacheData.time < 3600000) {
-            console.log("Sending Cached Data");
-            res.write(JSON.stringify(req.session.cacheData));
-            res.send();
-            return;
+        if (req.session.cacheData) {
+            if (time - req.session.cacheData.time < 3600000) {
+                console.log("Sending Cached Data");
+                res.write(JSON.stringify(req.session.cacheData));
+                res.send();
+                return;
+            }
         }
         console.log(req.session.accessToken);
         getUserInfo(req.session.accessToken,function(userString) {
@@ -151,8 +149,8 @@ function retrieveAccessToken(code,callback) {
     var accessToken = '';
 
     var data = querystring.stringify({
-        'client_id':'f637de5188550a885cbb',
-        'client_secret':'aeaa53172885b798c8687a4d8d3eb207974086fa', //Not actually my secret key, nice try.
+        'client_id':'CLIENT ID HERE',
+        'client_secret':'CLIENT SECRET HERE',
         'code':code
     });
     console.log(data);
@@ -269,6 +267,7 @@ function getUserRepos(token,callback) {
 function getRepoCommits(token,repos,user,callback) {
     var weeklyStats = [];
     var totalParsed = 0;
+    var caching = false;
 
     repos.forEach(function(repo, i) {
         var returnChunk = '';
@@ -292,8 +291,11 @@ function getRepoCommits(token,repos,user,callback) {
             res.on('end', function(chunk) {
                 //console.log(returnChunk);
                 var stats = JSON.parse(returnChunk);
-                //console.log("NUMBER"+ stats.length);
-                //console.log("STATUSCODE "+res.statusCode);
+                console.log("NUMBER"+ stats.length);
+                console.log("STATUSCODE "+res.statusCode);
+                if (res.statusCode == 202) {
+                    caching = true;
+                }
                 totalParsed++;
                 for (var j=0;j<stats.length;j++) {
                     if (stats[j].author.login == user) {
@@ -302,7 +304,7 @@ function getRepoCommits(token,repos,user,callback) {
                 }
                 if (totalParsed == repos.length) {
                     //console.log(weeklyStats);
-                    callback(weeklyStats);
+                    callback(weeklyStats,caching);
                 }
             })
         });
