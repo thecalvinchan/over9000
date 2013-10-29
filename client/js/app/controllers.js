@@ -23,7 +23,7 @@ tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$lo
         var date = new Date(res.time);
         date = date.toLocaleString();
         if (res.gitCache) {
-            $scope.messages.push(type:"alert",message:"GitHub has not finished compiling your stats. This page will update every two minutes as your stats are being compiled."});
+            $scope.messages.push({type:"alert",message:"GitHub has not finished compiling your stats. This page will update every two minutes as your stats are being compiled."});
             timeout = $timeout(function() {
                 $scope.data = data.getData($scope.code).success(timeoutFn);
             },120000);
