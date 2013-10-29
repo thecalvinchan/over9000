@@ -19,12 +19,11 @@ tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$lo
     $scope.data = data.getData($scope.code).success(timeoutFn);
     $scope.unit = 100;
 
-    function timeoutFn(data) {
-        var date = new Date(data.time);
+    function timeoutFn(res) {
+        var date = new Date(res.time);
         date = date.toLocaleString();
-        console.log(date);
-        if (data.gitCache) {
-            $scope.messages.push[{type:"alert",message:"GitHub has not finished compiling your stats. This page will update every two minutes as your stats are being compiled."}];
+        if (res.gitCache) {
+            $scope.messages.push(type:"alert",message:"GitHub has not finished compiling your stats. This page will update every two minutes as your stats are being compiled."});
             timeout = $timeout(function() {
                 $scope.data = data.getData($scope.code).success(timeoutFn);
             },120000);
