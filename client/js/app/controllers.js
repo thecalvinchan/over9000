@@ -7,17 +7,33 @@ tenThousandCtrl.controller('homeCtrl', ['$scope', '$routeParams',
     }
 ]);
     
-tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$location','dataFactory', function($scope,$http,$routeParams,$location,data) {
+tenThousandCtrl.controller('visualizeCtrl',['$scope','$http','$routeParams','$location','$timeout','dataFactory', function($scope,$http,$routeParams,$location,$timeout,data) {
     if (!$routeParams.attempt) {
         $location.path('/login/autherror');
     } else {
         $scope.code = $routeParams.code;
     }
-    console.log($scope.code);
-    //$scope.data = {data:{totalAdditions:159988,totalDeletions:38576,totalCommits:338,earliestWeek: 1302393600, latestWeek: 1382832000}};
-    $scope.data = data.getData($scope.code);
+
+    var timeout;
+    $scope.messages = [];
+    $scope.data = data.getData($scope.code).success(timeoutFn);
     $scope.unit = 100;
-    console.log(typeof $scope.data);
+
+    function timeoutFn(data) {
+        var date = new Date(data.time);
+        date = date.toLocaleString();
+        console.log(date);
+        if (data.gitCache) {
+            $scope.messages.push[{type:"alert",message:"GitHub has not finished compiling your stats. This page will update every two minutes as your stats are being compiled."}];
+            timeout = $timeout(function() {
+                $scope.data = data.getData($scope.code).success(timeoutFn);
+            },120000);
+            $scope.lastFetch = "Last Attempted Update: " + date;
+        } else {
+            $scope.lastFetch = "Last Updated: " + date;
+        }
+    };
+
     $scope.calcNum = function(num,prec) {
         return num.toFixed(prec);
     };

@@ -16,13 +16,24 @@ header {
 
 header h1.time {
     text-align: center;
-    font-size: 400%;
+    font-size:  500%;
     font-weight: normal;
     margin-bottom: -20px;
 }
 
 header .tagline {
     color: #000;
+}
+
+.alert-box {
+    font-weight: 300;
+    font-size: 12px;
+}
+
+.alert-box.alert {
+    background-color: #FCF8E3; 
+    border-color: #FBEED5;
+    color: #C09853;
 }
 
 #hoursCompleted {
@@ -32,6 +43,11 @@ header .tagline {
     font-size: 450%;
     font-weight: normal;
     margin-bottom: 0px;
+}
+
+#hoursCompleted p.last-fetch {
+    text-align: right;
+    font-size: 10px;
 }
 
 .progress {
@@ -77,4 +93,8 @@ header .tagline {
 
 .commits .bar-graph {
     background-color: #6f6f6f;
+}
+
+footer p {
+    font-size: 12px;
 }

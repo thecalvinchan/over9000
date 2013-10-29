@@ -4,9 +4,19 @@
         </div>
     </div>
     <div id="ng-view" style="display: none">
+        <div class="row" ng-repeat="message in messages">
+        <div data-alert class="alert-box {{message.type}} small-11 large-10 small-centered columns text-center">
+            {{message.message}}
+        </div>
+        </div>
         <div class="row">
-            <div class="small-12 large-8 small-centered large-uncentered columns" id="hoursCompleted">
-                <h2 class="time text-center">{{displayTime((data.data.totalAdditions + data.data.totalDeletions)/unit)}}</h2>
+            <div class="small-11 large-8 small-centered large-uncentered columns" id="hoursCompleted">
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <h2 class="time text-center">{{displayTime((data.data.totalAdditions + data.data.totalDeletions)/unit)}}</h2>
+                        <p class="subheader last-fetch">{{lastFetch}}</p>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="progress large-12 success"><span class="meter" style="width: {{graphHours((data.data.totalAdditions + data.data.totalDeletions)/unit/100)}}%"></span></div>
                 </div>
